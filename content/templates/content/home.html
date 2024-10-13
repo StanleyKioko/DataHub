@@ -1,0 +1,73 @@
+<!-- templates/content/home.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}Home - DataHub{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Welcome to DataHub</h1>
+<p class="text-center">Upload, view, and discuss your datasets seamlessly.</p>
+
+<hr>
+
+<h2>Available Documents</h2>
+{% if documents %}
+    <div class="row">
+        {% for document in documents %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ document.title }}</h5>
+                        <p class="card-text">{{ document.description|truncatechars:100 }}</p>
+                        <p class="card-text"><small class="text-muted">Uploaded at: {{ document.uploaded_at }}</small></p>
+                        <a href="{% url 'document_detail' document.id %}" class="btn btn-primary">View</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <!-- Pagination Controls -->
+    {% if documents.has_other_pages %}
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                {% if documents.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ documents.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&laquo;</span>
+                    </li>
+                {% endif %}
+
+                {% for num in documents.paginator.page_range %}
+                    {% if documents.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > documents.number|add:'-3' and num < documents.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if documents.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ documents.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&raquo;</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <p>No documents have been uploaded yet.</p>
+{% endif %}
+
+<a href="{% url 'upload_document' %}" class="btn btn-success mt-3">Upload a New Document</a>
+{% endblock %}
